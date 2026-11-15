@@ -1,0 +1,9 @@
+:HL["/_next/static/chunks/3i_a7cldjkk9e.css","style"]
+:HL["/_next/static/chunks/1zdk_zq6q0zru.css","style"]
+:HL["/_next/static/chunks/1dgq74mvpftn0.css","style"]
+:HL["/_next/static/media/4bd950c905cec094-s.p.2cu9iw-l3ih8o.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/6d781941a62a4592-s.p.384qhh3n5pf8p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+3:[["children",{"s":"__PAGE__","h":160}]]
+2:[["children",{"s":{"n":"id","t":"d","k":"death","s":[]},"h":96,"c":"$Q3"}]]
+1:[["children",{"s":"arcana","h":64,"c":"$Q2"}]]
+0:{"b":"XSTFnT39aB203P3tGZhGE","t":{"t":{"s":"","h":16,"c":"$Q1"}}}
