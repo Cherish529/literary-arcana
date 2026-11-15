@@ -461,35 +461,43 @@ npm start
 本项目没有任何服务端动态功能（没有 `cookies` / `headers` / `useSearchParams`），
 所以可以整站预渲染成纯静态文件，直接托管在 GitHub Pages 上。
 
-**仓库结构**
+**部署已完全自动化 —— 你只需要 push。**
 
-| 分支 | 内容 | 用途 |
-| --- | --- | --- |
-| `main` | 源码 | 你日常改这里 |
-| `gh-pages` | `out/` 构建产物 | GitHub Pages 直接托管这个分支 |
+`.github/workflows/ci.yml` 里配置了两个作业：
 
-**首次配置 Pages**（已经配好了，换仓库时需要重做）
+| 作业 | 作用 |
+| --- | --- |
+| `Lint · Typecheck · Test · Build` | lint → 类型检查 → 单元测试 → 生产构建，任一步失败则不会部署 |
+| `部署到 GitHub Pages` | 依赖上一个作业成功后，构建静态站点并发布 |
 
-在仓库 **Settings → Pages → Build and deployment** 中选择：
-- Source：**Deploy from a branch**
-- Branch：`gh-pages` / `/ (root)`
-
-**每次重新部署**
+**日常发布流程**
 
 ```bash
-npm run build                      # 产出 out/
-cp -r out/. <临时目录>/            # Windows: xcopy out\* 临时目录\ /E /I
-# 把 out/ 的内容提交到 gh-pages 分支
+git add .
+git commit -m "你的修改说明"
+git push origin main
 ```
 
-> Windows PowerShell 下可以用 `xcopy out\* $env:TEMP\pages-deploy\ /E /I /Y`，
-> 然后在临时目录里 `git add -A && git commit && git push origin main:gh-pages --force`。
+推上去之后，GitHub Actions 会自动跑完整套检查，全绿后自动重新部署，
+通常 1–2 分钟生效。可以在仓库的 **Actions** 标签页看进度。
+
+> 如果你换了新的仓库，需要在 **Settings → Pages → Build and deployment**
+> 里把 Source 设为 **GitHub Actions**（不是 "Deploy from a branch"），
+> 否则自动部署作业会拿不到部署目标。
 
 **注意**：`next.config.ts` 里已经开启了 `output: 'export'`。
 这意味着 **`cacheComponents`（PPR）无法使用**——它与 export 模式不兼容，
 构建时会报 `Invariant: PPR cannot be enabled in export mode`。
 本地 `npm run dev` 不受影响；但如果你以后想改回服务器端渲染模式，
 需要把 `output: 'export'` 和 `images.unoptimized` 一并删掉，并恢复 `cacheComponents: true`。
+
+**两个容易踩的坑（都已在 CI 里修好）**
+
+1. `typecheck` 脚本是 `next typegen && tsc --noEmit`。
+   Next.js 16 的 `LayoutProps<'/'>` 等全局类型由 `.next/types` 生成，
+   全新检出时 `.next/` 还不存在，必须先生成再检查。
+2. `@types/node` 必须是 `^22` 或更高。`vitest@5` 的 peer 依赖要求这一点，
+   用 `^20` 会导致 `npm ci` 解析失败。
 
 ### 部署到 Vercel
 
