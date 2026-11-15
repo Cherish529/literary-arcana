@@ -17,6 +17,10 @@
 /.next/
 /out/
 
+# 部署产物 out/ 需要提交到 gh-pages 分支，
+# 但在 main 分支上不追踪，避免污染源码历史。
+# 见 README「部署到 GitHub Pages」一节。
+
 # production
 /build
 
