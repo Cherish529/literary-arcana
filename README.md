@@ -6,6 +6,10 @@
 
 塔罗在这里是一套**象征性的叙事框架**，用于文学化的自我探索。它不是命运预测，也不具备任何科学诊断效力。
 
+**🌐 在线体验：<https://cherish529.github.io/literary-arcana/>**
+
+**代码仓库：<https://github.com/Cherish529/literary-arcana>**
+
 ---
 
 ## 目录
@@ -450,6 +454,43 @@ npm start
 
 构建会静态预渲染 22 张卡牌详情页 + 图鉴 + 首页，页面加载很快。
 
+### 部署到 GitHub Pages（本站当前部署方式）
+
+线上地址：<https://cherish529.github.io/literary-arcana/>
+
+本项目没有任何服务端动态功能（没有 `cookies` / `headers` / `useSearchParams`），
+所以可以整站预渲染成纯静态文件，直接托管在 GitHub Pages 上。
+
+**仓库结构**
+
+| 分支 | 内容 | 用途 |
+| --- | --- | --- |
+| `main` | 源码 | 你日常改这里 |
+| `gh-pages` | `out/` 构建产物 | GitHub Pages 直接托管这个分支 |
+
+**首次配置 Pages**（已经配好了，换仓库时需要重做）
+
+在仓库 **Settings → Pages → Build and deployment** 中选择：
+- Source：**Deploy from a branch**
+- Branch：`gh-pages` / `/ (root)`
+
+**每次重新部署**
+
+```bash
+npm run build                      # 产出 out/
+cp -r out/. <临时目录>/            # Windows: xcopy out\* 临时目录\ /E /I
+# 把 out/ 的内容提交到 gh-pages 分支
+```
+
+> Windows PowerShell 下可以用 `xcopy out\* $env:TEMP\pages-deploy\ /E /I /Y`，
+> 然后在临时目录里 `git add -A && git commit && git push origin main:gh-pages --force`。
+
+**注意**：`next.config.ts` 里已经开启了 `output: 'export'`。
+这意味着 **`cacheComponents`（PPR）无法使用**——它与 export 模式不兼容，
+构建时会报 `Invariant: PPR cannot be enabled in export mode`。
+本地 `npm run dev` 不受影响；但如果你以后想改回服务器端渲染模式，
+需要把 `output: 'export'` 和 `images.unoptimized` 一并删掉，并恢复 `cacheComponents: true`。
+
 ### 部署到 Vercel
 
 最简单的方式：把项目推到 GitHub，然后在 <https://vercel.com/new> 导入仓库。
@@ -457,6 +498,9 @@ npm start
 - Framework Preset：**Next.js**（自动识别）
 - Build Command：`npm run build`（默认）
 - Install Command：`npm install`（默认）
+
+> 用 Vercel 部署时，建议先把 `next.config.ts` 里的 `output: 'export'` 移除，
+> 让 Vercel 用标准的 Next.js 构建流程（性能更好，也支持完整功能）。
 
 可选环境变量：
 
@@ -482,6 +526,25 @@ npm start          # 默认监听 3000 端口
 
 **Q：改了图片但页面没变？**
 A：检查文件名是否完全一致（`public/cards/17-star.webp`）；浏览器可能缓存了旧图，强制刷新（Ctrl/Cmd + Shift + R）。
+
+**Q：推送到 GitHub 失败，提示连接超时？**
+A：多半是网络无法直连 `github.com`。本项目部署时遇到过这个问题——
+如果你的机器上有 Clash Verge / v2ray 之类的本地代理，需要给 git 配上代理：
+
+```bash
+git config --global http.proxy  http://127.0.0.1:7897
+git config --global https.proxy http://127.0.0.1:7897
+```
+
+用完记得取消：
+
+```bash
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```
+
+另外，如果 `gh` 提示 `refusing to allow an OAuth App to create or update workflow`
+之类的错误，说明 token 缺少 `workflow` 权限，需要执行 `gh auth refresh -h github.com -s workflow` 重新授权。
 
 **Q：想加更多题，但进度显示还是「/ 16」？**
 A：进度显示是自动的，题数来自 `questions` 数组长度。如果你看到旧的数字，说明改动没被保存或 dev server 没热更新成功，刷新一下即可。
