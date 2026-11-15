@@ -9,6 +9,7 @@
 
 import type { TarotCard } from '@/data/tarotCards';
 import { buildShareCaption } from './results';
+import { assetPath } from './assetPath';
 
 const W = 1080;
 const H = 1620;
@@ -126,7 +127,7 @@ export async function generateShareImage(card: TarotCard): Promise<string> {
 
   let image: HTMLImageElement | null = null;
   try {
-    image = await loadImage(card.image);
+    image = await loadImage(assetPath(card.image));
   } catch {
     // 卡面加载失败时跳过，版面仍完整
   }

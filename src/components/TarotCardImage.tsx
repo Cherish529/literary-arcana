@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
+import { assetPath } from '@/lib/assetPath';
 
 /**
  * 塔罗牌图片
@@ -47,10 +48,14 @@ export function TarotCardImage({
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const [errorSrc, setErrorSrc] = useState<string | null>(null);
 
+  // GitHub Pages 部署在子路径下，public/ 下的资源不会被 Next.js 自动
+  // 加上 basePath，这里统一补上前缀，避免卡面 404。
+  const resolvedSrc = assetPath(src);
+
   // 状态由「已加载 / 出错的 src」推导得出，
   // 因此 src 变化时会自动回到 loading，无需在 effect 里 setState。
   const status: 'loading' | 'loaded' | 'error' =
-    errorSrc === src ? 'error' : loadedSrc === src ? 'loaded' : 'loading';
+    errorSrc === resolvedSrc ? 'error' : loadedSrc === resolvedSrc ? 'loaded' : 'loading';
 
   // 图片元素挂载时检查一次：
   // 若浏览器已缓存该图片，load 事件可能早于 React 绑定 onLoad 而触发，
@@ -60,13 +65,13 @@ export function TarotCardImage({
       if (!node) return;
       if (node.complete) {
         if (node.naturalWidth > 0) {
-          setLoadedSrc(src);
+          setLoadedSrc(resolvedSrc);
         } else {
-          setErrorSrc(src);
+          setErrorSrc(resolvedSrc);
         }
       }
     },
-    [src],
+    [resolvedSrc],
   );
 
   return (
@@ -108,13 +113,13 @@ export function TarotCardImage({
       {status !== 'error' && (
         <Image
           ref={attachImg}
-          src={src}
+          src={resolvedSrc}
           alt={alt}
           fill
           priority={priority}
           sizes={sizes}
-          onLoad={() => setLoadedSrc(src)}
-          onError={() => setErrorSrc(src)}
+          onLoad={() => setLoadedSrc(resolvedSrc)}
+          onError={() => setErrorSrc(resolvedSrc)}
           className={`object-contain transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             status === 'loaded' ? 'opacity-100' : 'opacity-0'
           } ${imageClassName}`}

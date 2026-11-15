@@ -25,6 +25,7 @@ import {
 import type { AnswerSet } from '@/lib/matching';
 import type { PersonalityVector } from '@/data/tarotCards';
 import { buildNarrative } from '@/lib/results';
+import { assetPath } from '@/lib/assetPath';
 
 /* ------------------------------------------------------------------ */
 /* 数据完整性                                                          */
@@ -534,6 +535,86 @@ describe('结果叙述生成', () => {
           n.opening.includes(`《${primary.novelName}》`),
           `${primary.id}: 作品名应写作《${primary.novelName}》`,
         ).toBe(true);
+      }
+    }
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* 静态资源路径                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * GitHub Pages 把站点发布在子路径 /literary-arcana/ 下。
+ * public/ 下的资源在静态导出时不会被 Next.js 自动加上 basePath，
+ * 如果不补前缀，卡面会 404 并退化成「待制版」占位。
+ *
+ * 这组测试锁定 assetPath 的行为，防止回归。
+ */
+describe('静态资源路径', () => {
+  it('所有卡面都指向 public/cards 下的文件', () => {
+    for (const card of tarotCards) {
+      expect(card.image, `${card.id} 卡面路径异常`).toMatch(/^\/cards\/[\w-]+\.webp$/);
+    }
+  });
+
+  it('assetPath 会给站内绝对路径补上 basePath 前缀', () => {
+    const original = process.env.NEXT_PUBLIC_BASE_PATH;
+    process.env.NEXT_PUBLIC_BASE_PATH = '/literary-arcana';
+    try {
+      expect(assetPath('/cards/00-fool.webp')).toBe(
+        '/literary-arcana/cards/00-fool.webp',
+      );
+    } finally {
+      if (original === undefined) {
+        delete process.env.NEXT_PUBLIC_BASE_PATH;
+      } else {
+        process.env.NEXT_PUBLIC_BASE_PATH = original;
+      }
+    }
+  });
+
+  it('已经带前缀的路径不会被重复添加', () => {
+    const original = process.env.NEXT_PUBLIC_BASE_PATH;
+    process.env.NEXT_PUBLIC_BASE_PATH = '/literary-arcana';
+    try {
+      expect(assetPath('/literary-arcana/cards/00-fool.webp')).toBe(
+        '/literary-arcana/cards/00-fool.webp',
+      );
+    } finally {
+      if (original === undefined) {
+        delete process.env.NEXT_PUBLIC_BASE_PATH;
+      } else {
+        process.env.NEXT_PUBLIC_BASE_PATH = original;
+      }
+    }
+  });
+
+  it('根路径部署时保持原样', () => {
+    const original = process.env.NEXT_PUBLIC_BASE_PATH;
+    process.env.NEXT_PUBLIC_BASE_PATH = '';
+    try {
+      expect(assetPath('/cards/00-fool.webp')).toBe('/cards/00-fool.webp');
+    } finally {
+      if (original === undefined) {
+        delete process.env.NEXT_PUBLIC_BASE_PATH;
+      } else {
+        process.env.NEXT_PUBLIC_BASE_PATH = original;
+      }
+    }
+  });
+
+  it('外部地址与相对路径不受影响', () => {
+    const original = process.env.NEXT_PUBLIC_BASE_PATH;
+    process.env.NEXT_PUBLIC_BASE_PATH = '/literary-arcana';
+    try {
+      expect(assetPath('https://example.com/a.png')).toBe('https://example.com/a.png');
+      expect(assetPath('cards/a.png')).toBe('cards/a.png');
+    } finally {
+      if (original === undefined) {
+        delete process.env.NEXT_PUBLIC_BASE_PATH;
+      } else {
+        process.env.NEXT_PUBLIC_BASE_PATH = original;
       }
     }
   });
