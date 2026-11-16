@@ -491,6 +491,31 @@ git push origin main
 本地 `npm run dev` 不受影响；但如果你以后想改回服务器端渲染模式，
 需要把 `output: 'export'` 和 `images.unoptimized` 一并删掉，并恢复 `cacheComponents: true`。
 
+**basePath 与子路径托管**
+
+GitHub Pages 把项目发布在 `/literary-arcana/` 子路径下，而不是域名根目录。
+`next.config.ts` 里设置了 `basePath`，让 `next/link` 与 `_next` 资源自动带上这段前缀。
+
+但 **`public/` 下的静态资源不会被自动处理** —— 在 `images.unoptimized` 模式下，
+`next/image` 会原样输出 `src`，导致 `/cards/00-fool.webp` 去域名根目录找而 404，
+卡面退化成「待制版」占位。
+
+所以项目里有 `src/lib/assetPath.ts`，把站内绝对路径统一补上前缀：
+
+```ts
+import { assetPath } from '@/lib/assetPath';
+
+assetPath('/cards/00-fool.webp');  // → '/literary-arcana/cards/00-fool.webp'
+```
+
+**新增卡面或新引用 `public/` 下的文件时，记得用 `assetPath()` 包一下。**
+
+如果将来要部署到域名根目录（自有域名 / Vercel），构建时传入空值即可：
+
+```bash
+NEXT_PUBLIC_BASE_PATH="" npm run build
+```
+
 **两个容易踩的坑（都已在 CI 里修好）**
 
 1. `typecheck` 脚本是 `next typegen && tsc --noEmit`。
