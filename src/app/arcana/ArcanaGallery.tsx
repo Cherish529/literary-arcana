@@ -145,11 +145,6 @@ export function ArcanaGallery() {
                       />
                     </div>
                   </div>
-
-                  {/* 编号角标 */}
-                  <span className="absolute -left-1 -top-1 flex h-6 min-w-6 items-center justify-center border border-[#b18a50]/60 bg-[#f5e9d4] px-1 font-display text-[0.58rem] tracking-[0.08em] text-[#722f36]">
-                    {card.romanNumeral}
-                  </span>
                 </div>
 
                 {/* 文字：点击进详情 */}

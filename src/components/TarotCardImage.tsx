@@ -9,7 +9,8 @@ import { assetPath } from '@/lib/assetPath';
  *
  * - 图片未加载时显示占位纹理（保持真实 2:3 比例，不产生布局跳动）
  * - 加载失败时显示优雅的缺失状态，而不是破损图片标志
- * - 传入 romanNumeral 用于生成占位装饰
+ *
+ * 注意：卡面原图自带序号，此处不再叠加任何罗马数字避免重复。
  *
  * ⚠️ 关于加载状态的判定：
  * next/image 的图片若已被浏览器缓存，load 事件可能在 React 挂载
@@ -25,6 +26,7 @@ interface TarotCardImageProps {
   src: string;
   alt: string;
   cardId?: string;
+  /** 保留字段以兼容旧调用：卡面原图自带序号不再叠加显示 */
   romanNumeral?: string;
   /** 显示尺寸类名，控制容器宽高 */
   className?: string;
@@ -39,7 +41,6 @@ export function TarotCardImage({
   src,
   alt,
   cardId,
-  romanNumeral,
   className = '',
   priority = false,
   imageClassName = '',
@@ -49,7 +50,7 @@ export function TarotCardImage({
   const [errorSrc, setErrorSrc] = useState<string | null>(null);
 
   // GitHub Pages 部署在子路径下，public/ 下的资源不会被 Next.js 自动
-  // 加上 basePath，这里统一补上前缀，避免卡面 404。
+  // 加上 basePath，这里统一补上前缀避免卡面 404。
   const resolvedSrc = assetPath(src);
 
   // 状态由「已加载 / 出错的 src」推导得出，
@@ -89,11 +90,6 @@ export function TarotCardImage({
           className="absolute inset-[9%] rounded-sm border border-[#b18a50]/45"
           aria-hidden
         />
-        {romanNumeral && (
-          <span className="relative z-10 font-display text-2xl tracking-[0.2em] text-[#722f36]/70">
-            {romanNumeral}
-          </span>
-        )}
         {status === 'loading' && cardId && (
           <span className="relative z-10 max-w-[70%] text-center font-serif text-xs tracking-widest text-[#29241f]/45">
             待制版
@@ -136,11 +132,6 @@ export function TarotCardImage({
           <p className="max-w-[80%] font-serif text-xs leading-relaxed text-[#29241f]/45">
             图像文件缺失时，站点会以占位纹理保持版面完整。
           </p>
-          {romanNumeral && (
-            <span className="font-display text-lg tracking-[0.25em] text-[#722f36]/60">
-              {romanNumeral}
-            </span>
-          )}
         </div>
       )}
     </div>
