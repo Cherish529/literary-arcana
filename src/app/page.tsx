@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { cardsByNumber } from '@/data/tarotCards';
-import { TarotCardImage } from '@/components/TarotCardImage';
+import { FlipTarotCard } from '@/components/FlipTarotCard';
 import { BotanicalSprig, OrnamentDivider, SealEmblem } from '@/components/Ornaments';
 
 /**
@@ -87,14 +87,13 @@ export default function HomePage() {
       {/* ============ 卡牌展示 ============ */}
       <section className="relative px-5 py-16 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          {/* 三张牌：中间略大，形成层次 */}
+          {/* 三张牌：中间略大，形成层次 — 先见统一卡背再翻出正面 */}
           <div className="flex items-end justify-center gap-4 sm:gap-7 lg:gap-10">
             {FEATURED.map((card, i) => {
               const isCenter = i === 1;
               return (
-                <Link
+                <div
                   key={card.id}
-                  href={`/arcana/${card.id}`}
                   className={`group relative block w-[30%] max-w-[210px] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2 ${
                     isCenter
                       ? 'z-10 w-[38%] max-w-[265px]'
@@ -104,28 +103,32 @@ export default function HomePage() {
                   {/* 卡框 */}
                   <div className="relative border border-[#b18a50]/45 p-1.5 shadow-[0_18px_40px_-18px_rgba(41,36,31,0.5)] transition-shadow duration-700 group-hover:shadow-[0_26px_55px_-18px_rgba(41,36,31,0.6)] sm:p-2">
                     <div className="relative border border-[#29241f]/22">
-                      <TarotCardImage
-                        src={card.image}
-                        alt={`${card.tarotNameZh} · ${card.characterNameZh}`}
+                      <FlipTarotCard
+                        frontSrc={card.image}
+                        frontAlt={`${card.tarotNameZh} · ${card.characterNameZh}`}
                         cardId={card.id}
                         romanNumeral={card.romanNumeral}
                         priority={i === 1}
-                        className="aspect-[2/3] w-full"
                         sizes="(max-width: 640px) 38vw, 265px"
+                        autoFlipDelay={500 + i * 350}
+                        autoFlipOnView={false}
                       />
                     </div>
                   </div>
 
-                  {/* 悬停时浮出的牌名 */}
-                  <div className="pointer-events-none mt-4 text-center opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                  {/* 牌名（常显，点击进详情，移动端点卡翻面、点文字进详情） */}
+                  <Link
+                    href={`/arcana/${card.id}`}
+                    className="mt-4 block text-center"
+                  >
                     <p className="font-display text-[0.6rem] tracking-[0.28em] text-[#6f655a]">
                       {card.romanNumeral} · {card.tarotNameEn.toUpperCase()}
                     </p>
                     <p className="mt-1 font-serif text-xs tracking-[0.12em] text-[#722f36]">
                       {card.characterNameZh}
                     </p>
-                  </div>
-                </Link>
+                  </Link>
+                </div>
               );
             })}
           </div>

@@ -243,3 +243,32 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- 3D 翻牌（统一卡背） ---------- */
+
+.flip-scene {
+  perspective: 1200px;
+}
+
+.flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* 正面预旋转 180°：翻开后与背面同向，文字不会镜像 */
+.flip-face-front {
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-inner {
+    transition: none;
+  }
+}

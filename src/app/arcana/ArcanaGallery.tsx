@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { cardsByNumber, allNovels } from '@/data/tarotCards';
-import { TarotCardImage } from '@/components/TarotCardImage';
+import { FlipTarotCard } from '@/components/FlipTarotCard';
 import { OrnamentDivider } from '@/components/Ornaments';
 
 /**
@@ -131,17 +131,16 @@ export function ArcanaGallery() {
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
-              <Link href={`/arcana/${card.id}`} className="group block">
-                {/* 卡面 */}
+              <div className="group">
+                {/* 卡面：点击翻牌 */}
                 <div className="relative transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1.5">
                   <div className="relative border border-[#b18a50]/40 p-1.5 shadow-[0_12px_28px_-16px_rgba(41,36,31,0.55)] transition-all duration-500 group-hover:border-[#b18a50]/75 group-hover:shadow-[0_20px_40px_-16px_rgba(41,36,31,0.6)] sm:p-2">
                     <div className="relative border border-[#29241f]/18">
-                      <TarotCardImage
-                        src={card.image}
-                        alt={`${card.tarotNameZh} · ${card.characterNameZh}`}
+                      <FlipTarotCard
+                        frontSrc={card.image}
+                        frontAlt={`${card.tarotNameZh} · ${card.characterNameZh}`}
                         cardId={card.id}
                         romanNumeral={card.romanNumeral}
-                        className="aspect-[2/3] w-full"
                         sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 240px"
                       />
                     </div>
@@ -153,8 +152,8 @@ export function ArcanaGallery() {
                   </span>
                 </div>
 
-                {/* 文字 */}
-                <div className="mt-3.5 text-center">
+                {/* 文字：点击进详情 */}
+                <Link href={`/arcana/${card.id}`} className="mt-3.5 block text-center">
                   <p className="font-display text-[0.56rem] tracking-[0.2em] text-[#6f655a]/75">
                     {card.tarotNameEn.toUpperCase()}
                   </p>
@@ -167,8 +166,11 @@ export function ArcanaGallery() {
                   <p className="mt-0.5 font-serif text-[0.72rem] tracking-[0.06em] text-[#8a8075]">
                     《{card.novelName}》
                   </p>
-                </div>
-              </Link>
+                  <span className="mt-2 inline-block font-serif text-[0.72rem] tracking-[0.16em] text-[#722f36]/70 underline decoration-[#b18a50]/40 underline-offset-4">
+                    查看解读 →
+                  </span>
+                </Link>
+              </div>
             </motion.div>
           ))}
         </div>

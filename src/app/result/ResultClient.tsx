@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'reac
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TarotCardImage } from '@/components/TarotCardImage';
+import { FlipTarotCard } from '@/components/FlipTarotCard';
 import { OrnamentDivider, CornerOrnaments, Flourish } from '@/components/Ornaments';
 import type { AnswerSet, MatchResult } from '@/lib/matching';
 import { DIMENSION_LABELS, DIMENSIONS } from '@/lib/matching';
@@ -207,29 +208,32 @@ export function ResultClient() {
             最接近的文学原型是
           </motion.p>
 
-          {/* 卡牌 */}
+          {/* 卡牌：先见统一卡背随后翻出正面，点击可来回翻看 */}
           <motion.div
-            initial={{ opacity: 0, y: 28, rotateY: -18 }}
-            animate={{ opacity: 1, y: 0, rotateY: 0 }}
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="mx-auto mt-8 w-[62%] max-w-[330px] sm:w-[52%]"
-            style={{ perspective: 1200 }}
           >
-            <Link href={`/arcana/${card.id}`} className="group block">
+            <div className="group block">
               <div className="relative border border-[#b18a50]/50 p-2 shadow-[0_24px_50px_-22px_rgba(41,36,31,0.6)] transition-shadow duration-500 group-hover:shadow-[0_30px_60px_-22px_rgba(41,36,31,0.7)] sm:p-2.5">
                 <div className="relative border border-[#29241f]/22">
-                  <TarotCardImage
-                    src={card.image}
-                    alt={`${card.tarotNameZh} · ${card.characterNameZh}`}
+                  <FlipTarotCard
+                    frontSrc={card.image}
+                    frontAlt={`${card.tarotNameZh} · ${card.characterNameZh}`}
                     cardId={card.id}
                     romanNumeral={card.romanNumeral}
                     priority
-                    className="aspect-[2/3] w-full"
                     sizes="(max-width: 640px) 62vw, 330px"
+                    autoFlipDelay={1400}
+                    autoFlipOnView={false}
                   />
                 </div>
               </div>
-            </Link>
+              <p className="mt-3 text-center font-serif text-[0.72rem] tracking-[0.2em] text-[#6f655a]/70">
+                轻触卡面可翻看牌背
+              </p>
+            </div>
           </motion.div>
 
           {/* 牌名与人物 */}
